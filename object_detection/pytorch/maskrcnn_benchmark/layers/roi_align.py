@@ -17,7 +17,7 @@ class _ROIAlign(Function):
         ctx.sampling_ratio = sampling_ratio
         ctx.input_shape = input.size()
         output = _C.roi_align_forward(
-            input, roi, spatial_scale, output_size[0], output_size[1], sampling_ratio
+            input.float(), roi.float(), spatial_scale, output_size[0], output_size[1], sampling_ratio
         )
         return output
 
@@ -55,9 +55,14 @@ class ROIAlign(nn.Module):
         self.sampling_ratio = sampling_ratio
 
     def forward(self, input, rois):
-        return roi_align(
-            input, rois, self.output_size, self.spatial_scale, self.sampling_ratio
-        )
+        if 0: # input.device == torch.device("dpcpp"):
+            return roi_align(
+                input.to("cpu").float(), rois.float(), self.output_size, self.spatial_scale, self.sampling_ratio
+            ).to("dpcpp")
+        else:
+            return roi_align(
+                input.float(), rois.float(), self.output_size, self.spatial_scale, self.sampling_ratio
+            )
 
     def __repr__(self):
         tmpstr = self.__class__.__name__ + "("

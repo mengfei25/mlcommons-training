@@ -125,7 +125,7 @@ def make_data_loader(cfg, is_train=True, is_distributed=False, start_iter=0):
         "of GPUs ({}) used.".format(images_per_batch, num_gpus)
         images_per_gpu = images_per_batch // num_gpus
         shuffle = False if not is_distributed else True
-        num_iters = None
+        num_iters = cfg.SOLVER.MAX_ITER if cfg.SOLVER.MAX_ITER > 0 else None
         start_iter = 0
 
     if images_per_gpu > 1:
